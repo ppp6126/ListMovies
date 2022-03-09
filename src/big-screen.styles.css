@@ -1,0 +1,35 @@
+.big-screen {
+    width: 600px;
+    height: 100px;
+    background: #7c52bf;
+    margin: 0 auto;  
+  }
+  .big-screen p {
+    padding-top: 2%;
+  }
+.laptop {
+    width: 500px;
+    height: 100px;
+    background: #9674cb;
+    margin: 0 auto;
+  }
+
+.laptop p {
+  padding-top: 2%;  
+}
+.tablet-mobile {
+    width: 300px;
+    height: 100px;
+    background: #cab9e5;
+    margin: 0 auto;
+}
+.tablet-mobile p {
+    padding-top: 2%;
+}
+.mobile {
+    width: 80px;
+    height: 80px;
+    margin: 0% auto;
+    border-radius: 50%;
+    box-shadow: 15px 15px 0 0 #e4dcf2;
+}
