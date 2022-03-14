@@ -4,26 +4,34 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Button, Container, Paper , Grid, ListItem  } from '@mui/material';
+import { Button, container, Paper , Grid, ListItem } from '@mui/material';
 import { Link ,useHistory } from "react-router-dom";
-import Stack from '@mui/material/Stack';
+import Menu from '@mui/material/Menu';
 import Switch from '@mui/material/Switch';
 import { useSelector , useDispatch } from 'react-redux';
-import { increment , decrement } from './Slice/counterSlice';
+import { increment , decrement } from '../Slice/counterSlice';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { savelangage  } from './Slice/userSlice'
+import { savelangage  } from '../Slice/userSlice'
 import List from '@mui/material/List';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import { CenterFocusStrong } from '@material-ui/icons';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
+import {savelangauge} from '../Slice/languageSlice'
+
+const pages = ['Upcoming', 'Popular', 'TopRated' , 'Favorites'];
 
 export default function Appbar() {
   const history = useHistory();
   const [checked, setChecked] = useState(false);
   const dispatch = useDispatch() ;
+  const language = useSelector((state) => state.user.lang);
+  const region2 = useSelector((state) => state.user.lang);
 
   const handleChange2 = (event) => {
     setChecked(event.target.checked);
@@ -34,13 +42,17 @@ export default function Appbar() {
     }
   };
 
-  const [age, setAge] = useState('us');
+  const [region, setRegion] = useState(region2);
 
   const handleChange = (event) => {
-    setAge(event.target.value);
+    setRegion(event.target.value);
     const t = event.target.value ;
     dispatch(savelangage(t));
   };
+
+  const handleChangeLanguage=()=>{
+
+  }
 
   const handlePopular=()=>{
     history.replace("/Popular");
@@ -48,76 +60,91 @@ export default function Appbar() {
   const handleTopRated=()=>{
     history.replace("/TopRated");
   }
+  const handleFavorites=()=>{
+    history.replace("/Favorites");
+  }
   const handleUpcoming=()=>{
     history.replace("/");
   }
-    
-  const [state, setState] = React.useState({
-    left: false,
-  });
 
-  const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
 
-    setState({ ...state, [anchor]: open });
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+    debugger
   };
 
+  const handleCloseNavMenu = (value) => {
+    debugger
+    const type = value.target.value ;
+    if(type === "Popular"){
+      handlePopular();
+    }else if(type === "TopRated"){
+      handleTopRated()
+    }else if(type === "Favorites"){
+      handleFavorites()
+    }else{
+      handleUpcoming()
+    }
+    console.log(value.target.value);
+    setAnchorElNav(null);
+  };
 
-  const list = (anchor) => (
-    <Box sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }} role="presentation"
-      onClick={toggleDrawer(anchor, false)}  onKeyDown={toggleDrawer(anchor, false)} >
-      <List>
-      <Divider />
-        <ListItem >
-          <Grid container spacing={2} width={'100%'}>
-            <Grid  item style={{marginLeft: 'auto' , marginRight: 'auto' }}>
-              <Button  variant="contained"  onClick={handleUpcoming}>Upcoming</Button>
-            </Grid>
-            <Grid  item style={{marginLeft: 'auto' , marginRight: 'auto' }}>
-              <Button variant="contained"  onClick={handlePopular}>Popular</Button>
-            </Grid>
-            <Grid  item style={{marginLeft: 'auto' , marginRight: 'auto' }}>
-              <Button variant="contained"  onClick={handleTopRated}>Top Rated</Button>
-            </Grid>
-          </Grid>
-        </ListItem>
-        <Divider />
-      </List>
-    </Box>
-  );
   return (  
     
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} >
-              {['left'].map((anchor) => (
-                <React.Fragment key={anchor}>
-                  <MenuIcon onClick={toggleDrawer(anchor, true)}></MenuIcon>
-                  
-                  <Drawer anchor={anchor} open={state[anchor]} onClose={toggleDrawer(anchor, false)} style={{marginLeft: 'auto' , marginRight: 'auto' }}>
-                    <Grid Container style={{textAlign:'center'}}>
-                        {list(anchor)}
-                    </Grid>
-                  </Drawer>
-                </React.Fragment>
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <Typography variant="h6" owrap component="div" sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }} >
+              Movies
+            </Typography>
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" 
+                onClick={handleOpenNavMenu} color="inherit" >
+                <MenuIcon />
+              </IconButton>
+              <Menu id="menu-appbar" anchorEl={anchorElNav} anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                keepMounted transformOrigin={{ vertical: 'top', horizontal: 'left', }} 
+                open={Boolean(anchorElNav)} onClose={handleCloseNavMenu} sx={{ display: { xs: 'block', md: 'none' }, }} >
+                {pages.map((page) => (
+                  <MenuItem key={page} >
+                    <Button key={page} value={page} onClick={handleCloseNavMenu} sx={{ my: 1, color: 'blue', display: 'inline-block' , backgroundColor: '#FAF0E6'}} >
+                      {page}
+                    </Button>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} >
+              Movies
+            </Typography>
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+              {pages.map((page) => (
+                <Button key={page} value={page} onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', display: 'block' }} >
+                  {page}
+                </Button>
               ))}
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" style={{display: 'block' , margin: 'auto' , marginLeft:'270px'}}  sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-            Movies 
-          </Typography>
-          <div>Adult Movies :<Switch onChange={handleChange2} checked={checked} inputProps={{ 'aria-label': 'controlled' }} /></div>
-          <div>Region 
-            <Select labelId="demo-simple-select-autowidth-label" id="demo-simple-select-autowidth" value={age} onChange={handleChange} autoWidth label="Age" >
+            </Box>
+            <div>Adult Movies :<Switch onChange={handleChange2} checked={checked} inputProps={{ 'aria-label': 'controlled' }} /></div>
+            <div>Region 
+            <Select labelId="demo-simple-select-autowidth-label" id="demo-simple-select-autowidth" value={region} onChange={handleChange} autoWidth label="Age" >
               <MenuItem value={'us'}>EN</MenuItem>
               <MenuItem value={'th'}>TH</MenuItem>
               <MenuItem value={'cn'}>CN</MenuItem>
               <MenuItem value={'jp'}>JP</MenuItem>
             </Select>
           </div>
-        </Toolbar>
+          <div>Language 
+            <Select labelId="demo-simple-select-autowidth-label" id="demo-simple-select-autowidth" value={language} onChange={handleChangeLanguage} autoWidth label="Age" >
+              <MenuItem value={'us'}>EN</MenuItem>
+              <MenuItem value={'th'}>TH</MenuItem>
+              <MenuItem value={'cn'}>CN</MenuItem>
+              <MenuItem value={'jp'}>JP</MenuItem>
+            </Select>
+          </div>
+          </Toolbar>
+        </Container>
       </AppBar>
     </Box>
   );

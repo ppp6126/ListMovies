@@ -1,10 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import("@reduxjs/toolkit")
 const initialState = {
-    title : ['']
+    title : [null]
 }
 export const favoritesSlice = createSlice({
-
     name: 'favorites',
     initialState,
     reducers:{
@@ -14,9 +13,7 @@ export const favoritesSlice = createSlice({
         unsavafavorite: (state, action) => {
             for(let i=0 ; i<state.title.length ; i++){
                 if(state.title[i] === action.payload){
-                    debugger
                     state.title.splice(i,1);
-                    
                 }
                 console.log(state.title[i]);
             }
