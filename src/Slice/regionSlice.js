@@ -4,16 +4,16 @@ const initialState = {
     lang : 'us'
 }
 
-export const userSlice = createSlice({
-    name: 'user',
+export const RegionSlice = createSlice({
+    name: 'region',
     initialState,
     reducers:{
-        savelangage : (state, action) => {
+        saveRegion : (state, action) => {
             
             state.lang = action.payload;
         }
     }
 })
 
-export const { savelangage } = userSlice.actions;
-export default userSlice.reducer;
+export const { saveRegion } = RegionSlice.actions;
+export default RegionSlice.reducer;

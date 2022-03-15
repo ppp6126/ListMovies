@@ -18,6 +18,9 @@ import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import { savefavorite , unsavafavorite } from '../Slice/favoritesSlice';
 import Divider from '@mui/material/Divider';
+import translate from "../i18nProvider/translate";
+import { I18nPropvider, LOCALES } from '../i18nProvider';
+
 
 const urlSearch = "https://api.themoviedb.org/3/search/movie?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&query=";
 const urlSearch2 = "&include_adult=";
@@ -26,8 +29,9 @@ const urlSearch3 = "&page=";
 export default function Favorites(){
     const dispatch = useDispatch();
     const count = useSelector((state) => state.counter.value);
-    const region = useSelector((state) => state.user.lang);
+    const region = useSelector((state) => state.region.lang);
     const favorites = useSelector((state) => state.favorites.title);
+    const language2 = useSelector((state) => state.language.lang);
     const [movie, setMovie] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPage, setTotalpages] = useState(0);
@@ -39,15 +43,20 @@ export default function Favorites(){
         console.log(newValue);
         var x = new Boolean(false);
         let i = 0;
-        for (i = 0; i < favorites.length; i++) {
-          if (favorites[i] === newValue) {
-            console.log(favorites[i] + " === " + newValue)
-            x = true;
-            break;
-          } else {
-            console.log(favorites[i] + " !== " + newValue)
-            x = false;
+        debugger
+        if(favorites > 0){
+          for (i = 0; i < favorites.length; i++) {
+            if (favorites[i] === newValue) {
+              console.log(favorites[i] + " === " + newValue)
+              x = true;
+              break;
+            } else {
+              console.log(favorites[i] + " !== " + newValue)
+              x = false;
+            }
           }
+        }else{
+          x = false;
         }
         if (x) {
           dispatch(unsavafavorite(newValue));
@@ -113,9 +122,10 @@ export default function Favorites(){
     },[favorites])
 
     return(
-        <div  style={{textAlign: 'center'}}>
+        <I18nPropvider locale={language2}>
+        <div  style={{ marginTop: '30px', marginLeft: '60px' ,textAlign: 'center' , marginRight: '60px'}}>
             <Box sx={{ flexGrow: 1 }}>
-                <h1>Favorites</h1>
+                <h1 style={{color: 'white'}} >{translate('Favorites')}</h1>
                 <div  style={{ marginLeft: '50px' }}>
                     <Grid container spacing={2} >
                         {movie.map(m => {
@@ -151,13 +161,12 @@ export default function Favorites(){
                         })}
                     </Grid>
                 </div>
-                <div style={{ alignItems: 'center', marginTop: '20px', marginBottom: '20px' }}>
                 <Stack style={{ alignItems: 'center', marginTop: '20px', marginBottom: '20px' }}>
                     <Typography>Page: {page}</Typography>
                     <Pagination count={totalPage} page={page} onChange={handleChange} />
                 </Stack>
-                </div>
             </Box>
         </div>
+        </I18nPropvider>
     );
 }

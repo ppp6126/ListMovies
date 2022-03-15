@@ -8,6 +8,7 @@ export const favoritesSlice = createSlice({
     initialState,
     reducers:{
         savefavorite : (state, action) => {
+            debugger
             state.title.push(action.payload)
         },
         unsavafavorite: (state, action) => {

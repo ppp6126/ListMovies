@@ -1,6 +1,6 @@
 import { configureStore , getDefaultMiddleware} from "@reduxjs/toolkit";
 import counterReducer from '../Slice/counterSlice';
-import userReducer from '../Slice/userSlice';
+import regionReducer from '../Slice/regionSlice';
 import favoritesReducer from '../Slice/favoritesSlice';
 import languageReducer from '../Slice/languageSlice'
 import storage from 'redux-persist/lib/storage'
@@ -17,7 +17,7 @@ import {
 
 const reducers = combineReducers({
         counter : counterReducer ,
-        user : userReducer ,
+        region : regionReducer ,
         favorites : favoritesReducer,
         language : languageReducer
   });
