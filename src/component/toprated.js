@@ -28,6 +28,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { connect } from 'react-redux';
 import translate from "../i18nProvider/translate";
 import { I18nPropvider, LOCALES } from '../i18nProvider';
+import { CircularProgressbar , buildStyles} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const urltoprated = "https://api.themoviedb.org/3/movie/top_rated?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&region="
 const urltoprated2 = "&page="
@@ -352,13 +354,14 @@ export default function TopRated(){
             </Accordion>
           </Grid>
           <Box sx={{ flexGrow: 1 }}>
-            <h1 style={{color: 'white'}}>{translate('Popular')}</h1>
+            <Typography style={{color: 'white' , fontSize: '50px'}}>{translate('TopRated')}</Typography>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={4}>
                 {movie.map(m => {
-                  const type = "popular";
+                  const type = "top_rated";
                   const Tid = m.title;
                   const value = m.vote_average / 2;
+                  const percentage =  m.vote_average *10 ;
                   var f = "";
                   for (let i = 0; i < favorites.length; i++) {
                     if (m.title === favorites[i]) {
@@ -379,8 +382,12 @@ export default function TopRated(){
                         </Link>
                         <Grid>
                           <BottomNavigation sx={{ width: 20 }} value={f} showLabels onChange={handleChangeFavorites} style={{ float: 'right', marginRight: '20px' }}>
-                            <BottomNavigationAction label="Favorites" value={m.title} icon={<FavoriteIcon />} />
+                            <BottomNavigationAction value={m.title} icon={<FavoriteIcon />} />
                           </BottomNavigation>
+                          <div style={{ marginLeft: '5px', width: 50, height: 50 }}>
+                            < CircularProgressbar value={percentage} text={`${percentage}%`} strokeWidth={15}
+                              styles={buildStyles({ textColor: "#010101 ", pathColor: "#FE1919 ", trailColor: "#0D1809" , textSize: "26px"})}/>
+                          </div>
                         </Grid>
                       </Card>
                     </Grid>

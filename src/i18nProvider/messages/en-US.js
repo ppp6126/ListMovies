@@ -56,5 +56,9 @@ export default {
     'Okay' : 'Okay' ,
     'Favorite Menu' : 'Favorite menu' , 
     'Warn' : 'Warn' ,
+    'TH' : 'Thai' ,
+    'CN' : 'chinese' ,
+    'JP' : 'Japan' ,
+    'EN' : 'United States' ,
   },
 };

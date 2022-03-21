@@ -1,4 +1,4 @@
-import React , { useState , useEffect ,Fragment} from 'react';
+import React , { useState , useEffect ,Fragment ,useMemo} from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -26,16 +26,30 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Draggable from 'react-draggable';
 import TextField from '@mui/material/TextField';
 import { savefavorite, unsavafavorite } from '../Slice/favoritesSlice';
+import { changemode } from '../Slice/modeSlice';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 const pages = ['Upcoming', 'Popular', 'TopRated' ];
 // , 'Favorites'
+
 export default function Appbar() {
   const history = useHistory();
   const [checked, setChecked] = useState(false);
   const dispatch = useDispatch() ;
   const language2 = useSelector((state) => state.language.lang == null?'us' : state.language.lang);
-  const region2 = useSelector((state) => state.region.lang);
+  const region2 = useSelector((state) => state.region.region);
   const favorites = useSelector((state) => state.favorites.title);
+  const mode2 = useSelector((state) => state.mode.color);
+  const [mode, setMode] = useState(mode2);
+
+  useEffect(()=>{
+    dispatch(changemode(mode));
+  },[mode]);
+
+  const ChangeColorMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  }
 
   const handleChangeAdult = (event) => {
     setChecked(event.target.checked);
@@ -46,7 +60,7 @@ export default function Appbar() {
     }
   };
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const OpenListMenuFavorite = Boolean(anchorEl);
   const handleClickOpenListMenuFavorite = (event) => {
     setAnchorEl(event.currentTarget);
@@ -210,12 +224,12 @@ export default function Appbar() {
                 <Button onClick={handleClearFavorite}>{translate('Okay')}</Button>
               </DialogActions>
             </Dialog>
-            <div>{translate('Adult Movies')} :<Switch onChange={handleChangeAdult} checked={checked} inputProps={{ 'aria-label': 'controlled' }} /></div>
+            <Typography>{translate('Adult Movies')} :<Switch onChange={handleChangeAdult} checked={checked} inputProps={{ 'aria-label': 'controlled' }} /></Typography>
 
             <TextField id="outlined-select-currency" select label={translate('Region')} value={region} onChange={handleChangeRegion}  >
               {listregion.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
-                  {option.label}
+                  {translate(option.label)}
                 </MenuItem>
               ))}
             </TextField>
@@ -226,6 +240,9 @@ export default function Appbar() {
                 </MenuItem>
               ))}
             </TextField>
+            <IconButton sx={{ ml: 1 }} onClick={ChangeColorMode} value={mode} color="inherit">
+              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
           </Toolbar>
         </Container>
       </AppBar>

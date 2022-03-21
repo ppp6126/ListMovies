@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import("@reduxjs/toolkit")
 const initialState = {
-    lang : 'us'
+    region : 'us'
 }
 
 export const RegionSlice = createSlice({
@@ -10,7 +10,7 @@ export const RegionSlice = createSlice({
     reducers:{
         saveRegion : (state, action) => {
             
-            state.lang = action.payload;
+            state.region = action.payload;
         }
     }
 })

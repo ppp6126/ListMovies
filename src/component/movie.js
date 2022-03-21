@@ -1,5 +1,4 @@
 import React , { useState , useEffect} from 'react';
-import { makeStyles ,  } from '@material-ui/core';
 import { Button, Container, Paper , Grid  } from '@mui/material';
 import { Link }from "react-router-dom";
 import Box from '@mui/material/Box';
@@ -13,20 +12,31 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useSelector , useDispatch } from 'react-redux';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { styled, alpha } from '@mui/material/styles';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import { savefavorite , unsavafavorite } from '../Slice/favoritesSlice';
 import FormControl from '@mui/material/FormControl';
-import NativeSelect from '@mui/material/NativeSelect';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { width } from '@mui/system';
 import translate from "../i18nProvider/translate";
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import { I18nPropvider, LOCALES } from '../i18nProvider';
+import { createTheme, ThemeProvider,  styled, alpha } from '@mui/material/styles';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectFade , Autoplay, Navigation , Thumbs , FreeMode} from "swiper";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/effect-fade";
+import "swiper/css/thumbs";
+import "swiper/css/free-mode";
+import "../styles.css";
+
+import { CircularProgressbar , buildStyles} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 
 const urlupcoming = "https://api.themoviedb.org/3/movie/upcoming?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&page="
@@ -36,6 +46,9 @@ const urlSearch = "https://api.themoviedb.org/3/search/movie?api_key=307c7894a4a
 const urlSearch2 = "&include_adult=";
 const urlSearch3 = "&query=";
 
+const urltoprated = "https://api.themoviedb.org/3/movie/top_rated?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&region="
+const urltoprated2 = "&page="
+
 const urlgenre = "https://api.themoviedb.org/3/genre/movie/list?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US";
 
 const urlSort = "https://api.themoviedb.org/3/discover/movie?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&sort_by=popularity.desc";
@@ -43,7 +56,7 @@ const urlSort2 = "&include_adult="
 const urlSort3 = "&with_genres="
 const urlSort4 = "&watch_region="
 const urlSort5 ="&page="
-
+ 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: '100%',
@@ -100,15 +113,15 @@ export default function Movies(){
   const [keyword, setKeyWord] = useState('');
   const dispatch = useDispatch();
   const [checked, setChecked] = useState([]);
-  const [sort , setSort] = useState('');
+  const [sort , setSort] = useState('popularity.desc');
   const [urlmovie, setUrlmovie] = useState([])
-
+  const [MoviePopular, setMoviePopular] = useState([])
+  
   const handleChangechecked = (event ) => {
     checked.push(event.target.value);
     console.log(checked);
     
   };
-
   const handleChangeSort = (event ) => {
     setSort(event.target.value);
     console.log(event.target.value);
@@ -247,14 +260,30 @@ export default function Movies(){
               m.push(result.results[i]);
             }
           }
-          debugger
           setTotalpages(result.total_pages);
           setMovie(m);
         })
     }
   }
 
-  useEffect(() => {
+  const getlistToprated=()=>{
+    fetch(urltoprated+'us'+urltoprated2+1)
+    .then(res => res.json())
+    .then((result) =>{
+      let r = result.results.length ;
+      const m = [] ;
+      for(let i=0 ; i<10 ; i++){
+        if(result.results[i].vote_average > 8.5){
+          console.log(result.results[i].vote_average)
+          m.push(result.results[i])
+        }
+        
+      }
+        setMoviePopular(m);
+    })
+  }
+
+  useEffect(async () => {
     const m = [];
     const u = urlupcoming + region + urlupcoming2 + page;
     setUrlmovie(u);
@@ -287,13 +316,58 @@ export default function Movies(){
           setMovie(m);
         })
     }
+    await getlistToprated();
   }, [region, count , language2])
 
-
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
     return(
       <I18nPropvider locale={language2}>
       <div style={{ marginTop: '30px', marginLeft: '60px' ,textAlign: 'center' , marginRight: '60px'}}>
+        <div className='backgroundopacity'>
+          <Swiper
+            id="main"
+            tag="section"
+            wrapperTag="ul"
+            spaceBetween={30}
+            slidesPerView={1}
+            autoplay={{ delay: 2500, disableOnInteraction: false, }}
+            centeredSlides={true}
+            navigation={true}
+            effect={"fade"}
+            thumbs={{ swiper: thumbsSwiper }}
+            modules={[EffectFade ,Autoplay , Navigation , Thumbs , FreeMode]}
+            style={{ marginBottom:'20px' , "--swiper-navigation-color": "#fff", "--swiper-pagination-color": "#fff",}}
+          >
+            {MoviePopular.map(mp =>{
+              return(
+                <SwiperSlide key={mp.title} tag="li">
+                  <LazyLoadImage src={img + mp.poster_path}  width={'30%'} height={'auto'} style={{ marginTop:'2px' }}></LazyLoadImage>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+          <Swiper
+            onSwiper={setThumbsSwiper}
+            loop={true}
+            spaceBetween={30}
+            slidesPerView={MoviePopular.length}
+            freeMode={true}
+            watchSlidesProgress={true}
+            centeredSlides={true}
+            modules={[FreeMode, Navigation, Thumbs]}
+            className="mySwiper "
+            style={{ marginBottom:'20px'}}
+          >
+            {MoviePopular.map(mp =>{
+              return(
+                <SwiperSlide key={mp.title} tag="li">
+                  <LazyLoadImage src={img + mp.poster_path}  width={'60%'} height={'auto'} style={{ marginTop:'2px' }}></LazyLoadImage>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        </div>
         <Search style={{ display: 'block', margin: 'auto' , color: 'black' , backgroundColor:'white'}}>
           <SearchIconWrapper>
             <SearchIcon />
@@ -303,7 +377,7 @@ export default function Movies(){
         <Grid style={{ display: 'block', margin: 'auto' , width: "autoWidth" , marginTop: '10px'}}>
           <Accordion style={{marginTop: '10px' , display: 'block', margin: 'auto' , width:'auto'}}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header" >
-                <Typography> {translate('Sort')} & {translate('Filters')}</Typography>
+                <Typography> {translate('Sort')} & {translate('Filters')} </Typography>
               </AccordionSummary>
               <AccordionDetails  style={{textAlign: 'center'}}>
                 <Grid>
@@ -313,16 +387,16 @@ export default function Movies(){
                     </AccordionSummary>
                     <AccordionDetails  style={{textAlign: 'center'}}>
                         <FormControl style={{ width: '100%'}}>
-                          <NativeSelect inputProps={{  name: 'sort', id: 'uncontrolled-native', }} onChange={handleChangeSort}>
-                            <option value="popularity.desc" > Popularity Descending </option>
-                            <option value="popularity.asc"> Popularity Ascending </option>
-                            <option value="vote_average.desc"> Rating Descending </option>
-                            <option value="vote_average.asc"> Rating Ascending </option>
-                            <option value="primary_release_date.desc"> Release Date Descending </option>
-                            <option value="primary_release_date.asc"> Release Date Ascending </option>
-                            <option value="title.asc"> Title (A-Z) </option>
-                            <option value="title.desc"> Title (Z-A) </option>
-                          </NativeSelect>
+                          <Select inputProps={{  name: 'sort', id: 'uncontrolled-native', }}  defaultValue={sort} onChange={handleChangeSort}>
+                            <MenuItem value='popularity.desc'>{translate('Popularity Descending')}</MenuItem>
+                            <MenuItem value='popularity.asc'>{translate('Popularity Ascending')}</MenuItem>
+                            <MenuItem value='vote_average.desc'>{translate('Rating Descending')}</MenuItem>
+                            <MenuItem value='vote_average.asc'>{translate('Rating Descending')}</MenuItem>
+                            <MenuItem value='primary_release_date.desc'>{translate('Release Date Descending')}</MenuItem>
+                            <MenuItem value='primary_release_date.asc'>{translate('Release Date Descending')}</MenuItem>
+                            <MenuItem value='title.asc'>{translate('Title (A-Z)')}</MenuItem>
+                            <MenuItem value='title.desc'>{translate('Title (A-Z)')}</MenuItem>
+                          </Select>
                         </FormControl>
                     </AccordionDetails>
                   </Accordion>
@@ -338,10 +412,12 @@ export default function Movies(){
                         <Grid container spacing={0} style={{width:'auto' , height:'auto' , textAlign: 'center' }}>
                           {genre.map(g =>(
                             <Grid item xs="auto" style={{ textAlign: 'center'}} key={g.name} >
-                              <label>
-                                <input className="btnlike" type="checkbox" value={g.name}  onChange={handleChangechecked}/>
-                                <span style={{marginTop:'10px'}}>{translate(g.name)}</span>
-                              </label>
+                              <Typography>
+                                <label>
+                                  <input className="btnlike" type="checkbox" value={g.name}  onChange={handleChangechecked}/>
+                                  <span style={{marginTop:'10px'}}>{translate(g.name)}</span>
+                                </label>
+                              </Typography>
                             </Grid>
                           ))}
                           
@@ -355,13 +431,14 @@ export default function Movies(){
           </Accordion>
         </Grid>
         <Box sx={{ flexGrow: 1 }}>
-          <h1 style={{color: 'white'}}>{translate('Upcoming')}</h1>
+          <Typography style={{color: 'white' , fontSize: '50px'}}>{translate('Upcoming')}</Typography>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={4}>
               {movie.map(m => {
                 const type = "upcoming";
                 const Tid = m.title;
                 const value = m.vote_average / 2;
+                const percentage =  m.vote_average *10 ;
                 var f = "";
                 for (let i = 0; i < favorites.length; i++) {
                   if (m.title === favorites[i]) {
@@ -380,11 +457,13 @@ export default function Movies(){
                           <Rating name="text-feedback" value={value} readOnly precision={0.5} emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />} />
                         </Grid>
                       </Link>
-                      <Grid>
-                        <BottomNavigation sx={{ width: 20 }} value={f} showLabels onChange={handleChangeFavorites} style={{ float: 'right', marginRight: '20px' }}>
-                          <BottomNavigationAction label="Favorites" value={m.title} icon={<FavoriteIcon />} />
-                        </BottomNavigation>
-                      </Grid>
+                      <BottomNavigation  value={f} showLabels onChange={handleChangeFavorites} style={{ float: 'right', marginRight: '5px' }}>
+                        <BottomNavigationAction value={m.title} icon={<FavoriteIcon />} />
+                      </BottomNavigation>
+                      <div style={{ marginLeft: '5px', width: 50, height: 50 }}>
+                        <CircularProgressbar value={percentage} text={`${percentage}%`} strokeWidth={15}
+                        styles={buildStyles({ textColor: "#010101 ", pathColor: "#FE1919 ", trailColor: "#0D1809" , textSize: "26px"})}/>
+                      </div>
                     </Card>
                   </Grid>
                 )

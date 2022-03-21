@@ -1,13 +1,11 @@
-import React , { useState , useEffect} from 'react';
-import { makeStyles ,  } from '@material-ui/core';
-import { Button, Container, Paper , Grid  } from '@mui/material';
-import { useParams , useRouteMatch} from "react-router-dom";
+import React , { useState , useEffect , useRef } from 'react';
+import { Button, container, Paper , Grid  } from '@mui/material';
+import { useParams , Link} from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -24,11 +22,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import Avatar from '@mui/material/Avatar';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { FcRating } from "react-icons/fc";
-import { BsPersonSquare , BsPersonFill } from "react-icons/bs";
 import translate from "../i18nProvider/translate";
 import { I18nPropvider, LOCALES } from '../i18nProvider';
 import person1 from '../img/person1.png';
-
+import Box from '@mui/material/Box';
+import { CircularProgressbar , buildStyles} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -41,8 +40,8 @@ const ExpandMore = styled((props) => {
     }),
   }));
 
-  const urlover ="https://api.themoviedb.org/3/movie/"
-  const urlover2 ="/translations?api_key=307c7894a4a56f0cfac887e273a285b3"
+  const urlover ="https://api.themoviedb.org/3/movie/" ;
+  const urlover2 ="/translations?api_key=307c7894a4a56f0cfac887e273a285b3" ;
 
 export default function Moviedetails(){
     const [genre,setGenre] = useState([])
@@ -54,10 +53,10 @@ export default function Moviedetails(){
     const language2 = useSelector((state) => state.language.lang);
     const [fav,setFav] = useState('')
     const [movieOverview,setMovieOverview] = useState([]);
-    const [numpage,setNumPage] = useState('');
+    const [numpage,setNumPage] = useState(0);
     const [expanded, setExpanded] = useState(false);
     const [actor,setActor] = useState([]);
-
+    debugger
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
@@ -92,6 +91,7 @@ export default function Moviedetails(){
             }else{
                 num = totalPage ;
             }
+            debugger
             console.log(u);
             await getMovie(u , num);
             await getGenremovie();
@@ -159,7 +159,14 @@ export default function Moviedetails(){
         fetch("https://api.themoviedb.org/3/movie/"+id+"/credits?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US")
         .then(res=>res.json())
         .then((result)=>{
-            setActor(result.cast)
+            let r = result.cast.length ;
+            const act = [] ;
+            for(let i=0 ; i<r ; i++){
+                if(result.cast[i].popularity > 10){
+                    act.push(result.cast[i]);
+                }
+            }
+            setActor(act);
         })
     }
 
@@ -168,10 +175,10 @@ export default function Moviedetails(){
     return(
         <I18nPropvider locale={language2}>
         <div className='header large border first' >
-            <Paper sx={{ p: 2, margin: 'auto', maxWidth: 'auto', flexGrow: 1 }} style={{ backgroundImage: 'url(${img+movie.backdrop_path})' ,backgroundColor:'black', opacity: 1  }} >
+            <Paper sx={{ p: 2, margin: 'auto', maxWidth: 'auto', flexGrow: 1 }} style={{backgroundColor:'black', opacity: 1  }} >
                 <Card  style={{marginTop: '20px' , marginLeft:'20px' , marginRight: '20px' , marginBottom:'20px', width: 'auto' 
                     ,display: 'flex' ,justifycontent: 'center' ,flexwrap: 'wrap' ,margin: '30px' , backgroundcolor: '#ffffff' , border: '1px' , opacity: 1}}>
-                    <CardMedia >
+                    <CardMedia sx={{marginTop: '10px' , marginLeft:'10px'}}>
                         <LazyLoadImage component="img" width={"400px"} height={"500px"}  src={img+movie.poster_path} style={{ marginBottom:'20px'}}/>
                     </CardMedia>
                     <Grid container spacing={2}  style={{ marginLeft:'5px' }}>
@@ -195,7 +202,6 @@ export default function Moviedetails(){
                                                 }
                                             }
                                     })}
-                                   {movie.id}
                                 </Typography>
                                 <Stack direction="row" divider={<Divider orientation="vertical" flexItem style={{textAlign: 'left'}} />}>
                                     <label style={{marginRight: '8px' }}>{movie.release_date}</label>
@@ -218,10 +224,14 @@ export default function Moviedetails(){
                                     <Rating name="text-feedback" value={movie.vote_average / 2 } readOnly precision={0.5} 
                                         emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}/>
                                     <Stack direction="row">
-                                        <label style={{marginLeft: '8px', marginRight: '5px' }} >{movie.vote_average / 2}</label><FcRating style={{fontSize: "x-large"}}/>
+                                        <Typography style={{marginLeft: '8px', marginRight: '5px' }} >{movie.vote_average / 2}</Typography><FcRating style={{fontSize: "x-large"}}/>
                                     </Stack>
                                 </Stack>
-                                <Stack>
+                                <Stack direction="row">
+                                    <div style={{ marginLeft: '5px', width: 50, height: 50 }}>
+                                        < CircularProgressbar value={movie.vote_average *10} text={`${movie.vote_average *10}%`} strokeWidth={15}
+                                        styles={buildStyles({ textColor: "#010101 ", pathColor: "#FE1919 ", trailColor: "#0D1809" , textSize: "26px"})}/>
+                                    </div>
                                     <BottomNavigation sx={{ width: 20 }} value={fav} showLabels onChange={handleChangeFavorites} style={{  marginLeft: '20px' }}>
                                         <BottomNavigationAction label="" value={movie.title} icon={<FavoriteIcon />} />
                                     </BottomNavigation>
@@ -246,7 +256,9 @@ export default function Moviedetails(){
                                         }
                                     }
                                 })}
-                                <Grid container spacing={2}>
+                                <Box sx={{ flexGrow: 1 ,width: 'auto', height: 240, backgroundColor: '#E0FFFF' , opacity: 1 }}  
+                                    style={{ position: 'relative' , marginTop: '30px' , overflowX: 'scroll' , display: 'flex' , flexGrow: 1 , flexShrink: 0 }}>
+                                <Grid container item xs={12} spacing={2} style={{ marginLeft: '5px' , marginRight: '5px' , flexDirection: 'column' , marginTop: '5px' }}>
                                     {actor.map(a =>{
                                         var urlimg = '' ;
                                         if(a.profile_path === null){
@@ -255,16 +267,27 @@ export default function Moviedetails(){
                                             urlimg = img + a.profile_path ;
                                         }
                                         return(
-                                            <Grid item xs="auto" style={{ textAlign: 'center' }} key={a.name}>
-                                                <Stack>
-                                                    <LazyLoadImage src={urlimg} width={"130"} height={"150"}></LazyLoadImage>
-                                                    {a.name}
-                                                </Stack>
-                                                
+                                            <Grid container item xs={'auto'} style={{ textAlign: 'center' }} key={a.name}>
+                                                 <Card  sx={{ maxWidth: 150 , opacity: 1 }} >
+                                                    <Stack className='click' >
+                                                        <LazyLoadImage src={urlimg} width={"auto"} height={"150"}></LazyLoadImage>
+                                                        <Typography>{a.name}</Typography>
+                                                    </Stack>
+                                                </Card>
                                             </Grid>
                                         );
                                     })}
+                                    <Grid container item xs={2} style={{ textAlign: 'center' }} >
+                                        <Link to={"/SeeMoreActor/" + Tid +"/" + type +"/"+totalPage}>
+                                            <Card sx={{ maxWidth: 150 , opacity: 1 }} >
+                                                <Stack className='click' >
+                                                    <Button className="btn" style={{height:'170px' }} >Show more</Button>
+                                                </Stack>
+                                            </Card>
+                                        </Link>
+                                    </Grid> 
                                 </Grid>
+                                </Box>
                                 </Grid>
                                 <ExpandMore expand={expanded} onClick={handleExpandClick} aria-expanded={expanded} aria-label="show more" >
                                     <h5>{translate('Review')}</h5>
@@ -282,13 +305,10 @@ export default function Moviedetails(){
                             var path = "";
                             if(pathavater != null){
                                 path = pathavater.substring(1);
-                                console.log(path);
                                 if(path.startsWith('https://')){
                                     path = path;
-                                    console.log('else ='+path);
                                 }else{
                                     path = img + pathavater;
-                                    console.log('true ='+path);
                                 }
                             }
                             

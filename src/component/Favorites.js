@@ -10,17 +10,14 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useSelector , useDispatch } from 'react-redux';
-import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
-import { styled, alpha } from '@mui/material/styles';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import { savefavorite , unsavafavorite } from '../Slice/favoritesSlice';
-import Divider from '@mui/material/Divider';
 import translate from "../i18nProvider/translate";
 import { I18nPropvider, LOCALES } from '../i18nProvider';
-
+import { CircularProgressbar , buildStyles} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const urlSearch = "https://api.themoviedb.org/3/search/movie?api_key=307c7894a4a56f0cfac887e273a285b3&language=en-US&query=";
 const urlSearch2 = "&include_adult=";
@@ -125,13 +122,14 @@ export default function Favorites(){
         <I18nPropvider locale={language2}>
         <div  style={{ marginTop: '30px', marginLeft: '60px' ,textAlign: 'center' , marginRight: '60px'}}>
             <Box sx={{ flexGrow: 1 }}>
-                <h1 style={{color: 'white'}} >{translate('Favorites')}</h1>
+                <Typography style={{color: 'white' , fontSize: '50px'}}>{translate('Favorites')}</Typography>
                 <div  style={{ marginLeft: '50px' }}>
                     <Grid container spacing={2} >
                         {movie.map(m => {
                         const type = "popular";
                         const Tid = m.title;
                         const value = m.vote_average / 2;
+                        const percentage =  m.vote_average *10 ;
                         var f = "";
                         for (let i = 0; i < favorites.length; i++) {
                             if (m.title === favorites[i]) {
@@ -151,9 +149,13 @@ export default function Favorites(){
                                 </Grid>
                                 </Link>
                                 <Grid>
-                                <BottomNavigation sx={{ width: 20 }} value={f} showLabels onChange={handleChangeFavorites} style={{ float: 'right', marginRight: '20px' }}>
-                                    <BottomNavigationAction label="Favorites" value={m.title} icon={<FavoriteIcon />} />
-                                </BottomNavigation>
+                                    <BottomNavigation sx={{ width: 20 }} value={f} showLabels onChange={handleChangeFavorites} style={{ float: 'right', marginRight: '20px' }}>
+                                        <BottomNavigationAction value={m.title} icon={<FavoriteIcon />} />
+                                    </BottomNavigation>
+                                    <div style={{ marginLeft: '5px', width: 50, height: 50 }}>
+                                    < CircularProgressbar value={percentage} text={`${percentage}%`} strokeWidth={15}
+                                        styles={buildStyles({ textColor: "#010101 ", pathColor: "#FE1919 ", trailColor: "#0D1809" , textSize: "26px"})}/>
+                                    </div>
                                 </Grid>
                             </Card>
                             </Grid>
